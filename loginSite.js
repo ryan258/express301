@@ -17,11 +17,31 @@ app.use(cookieParser())
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
+app.use((req, res, next) => {
+  if (req.query.msg === 'fail') {
+    res.locals.msg = `Sorry, this username/password doesn't work for us.`
+  } else {
+    res.locals.msg = ``
+  }
+  next()
+})
+
 app.get('/', (req, res, next) => {
   res.send('Sanity Check')
 })
 
 app.get('/login', (req, res, next) => {
+  // the req object has a query prop in express
+  // req.query is an object  with a property of every key in a query string this will have their own respective values
+  //! the query string is where you put insecure data - because anyone watching the router will be able to see everything go through, but not the body if you're using https
+  //   console.log(req.query)
+  /* // a 2nd way 
+  const msg = req.query.msg
+  if (msg === 'fail') {
+    // run some other functionality
+  }
+  */
+
   res.render('login')
 })
 
@@ -51,7 +71,9 @@ app.post('/process_login', (req, res, next) => {
     // 1 arg, where to send the browser
     res.redirect('/welcome')
   } else {
-    res.redirect('/login?msg=fail')
+    // '?' is a special character in a URL that declares the start of a query string (which is just key=value pairs seperated by &'s)
+    // - but not part of the actual path to get to this particular page
+    res.redirect('/login?msg=fail&test=hello')
   }
 
   //   res.json(req.body)
