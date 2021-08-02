@@ -85,11 +85,43 @@ app.get('/welcome', (req, res, next) => {
   res.render('welcome', { username: req.cookies.username })
 })
 
+//! app.params() takes 2 args:
+// 1- param to look for in the route
+// 2- a callback to run (w/ the usuals)
+// v this v approach saves a lot of string checking
+app.param('storyId', (req, res, next, id) => {
+  console.log(`Params called: `, id)
+  // if id has something todo w/ stories...
+  // if id has something todo w/ blog...
+  next()
+})
+
+// app.get('/user/uid', ...)
+// app.get('/user/admin/uid', ...)
+// app.get('/user/profile/uid', ...)
+
+//! in a route, any time something has a ":" in front on it, it's a wildcard that will match anything in that slot
+app.get('/story/:storyId', (req, res, next) => {
+  //! the req.params always exists as it will have a property for each wildcard in the route
+
+  res.send(`<h1>Story ${req.params.storyId}</h1>`)
+})
+
+//! this will never run because the :storyId route will always trigger first (w/o the top one running next())
+/*app.get('/story/:blogId', (req, res, next) => {
+  res.send(`<h1>Story ${req.params.storyId}</h1>`)
+})
+*/
+
+app.get('/story/:storyId/:link', (req, res, next) => {
+  res.send(`<h1>Story ${req.params.storyId} @ ${req.params.link}</h1>`)
+})
+
 app.get('/logout', (req, res, next) => {
   // destroy cookie
   res.clearCookie('username')
   res.redirect('/login')
 })
 
-app.listen(3000)
+app.listen(3000) // when someone goes here, everything thing jumps into action
 console.log('Server listening on port 3000...')
