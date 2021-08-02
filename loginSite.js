@@ -117,6 +117,38 @@ app.get('/story/:storyId/:link', (req, res, next) => {
   res.send(`<h1>Story ${req.params.storyId} @ ${req.params.link}</h1>`)
 })
 
+//! this can only be sent back in a protected manner
+app.get('/statement', (req, res, next) => {
+  // res.send('beep...')
+  // v this v will render the statement image in the browser
+  // res.sendFile(path.join(__dirname, 'userStatements/BankStatementChecking.png'))
+  //! but app has a download method! that takes 2 args
+  // 1- filename
+  // 2- (optionally) - what you want the filename to download as
+  // 3- (optional) - callback which comes w/ an error obj
+  //! so download is setting the headers
+  // 1- content-disposition to attachment, w/ a filename of the 2nd arg
+  res.download(path.join(__dirname, 'userStatements/BankStatementChecking.png'), 'YourStatement.png', (err) => {
+    // if there is an error in sending the file, the headers may already be sent. and you only get to send 1 set of headers...
+    console.log(err)
+    // so no
+    // if (err) {res.redirect('/download/error')}
+    // but you can check to see if headers have already been sent...
+    if (err) {
+      // res.headersSent is a bool, true if sent
+      if (!res.headersSent) {
+        res.redirect('/download/error')
+      }
+    }
+  })
+  // although you could do this yourself
+  // res.set('Content-Disposition','attachment')
+  // res.sendFile(...) // but again, express handles this for us via res.download()
+  //! attachment ONLY sets the headers for content-disposition to attachment IF you provide a file, it will also set the filename
+  // but really you hardly ever use this...
+  res.attachment(path.join(__dirname, 'userStatements/BankStatementChecking.png'), 'YourStatement.png')
+})
+
 app.get('/logout', (req, res, next) => {
   // destroy cookie
   res.clearCookie('username')
